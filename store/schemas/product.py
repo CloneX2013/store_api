@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 from typing import Annotated, Optional
 from bson import Decimal128
@@ -6,6 +7,7 @@ from store.schemas.base import BaseSchemaMixin, OutSchema
 
 
 class ProductBase(BaseSchemaMixin):
+    """Schema base para as propriedades do produto."""
     name: str = Field(..., description="Product name")
     quantity: int = Field(..., description="Product quantity")
     price: Decimal = Field(..., description="Product price")
@@ -13,14 +15,17 @@ class ProductBase(BaseSchemaMixin):
 
 
 class ProductIn(ProductBase, BaseSchemaMixin):
+    """Schema para a criação de produtos (entrada)."""
     ...
 
 
 class ProductOut(ProductIn, OutSchema):
+    """Schema para a visualização de produtos (saída)."""
     ...
 
 
 def convert_decimal_128(v):
+    """Converte um valor Decimal para o tipo Decimal128 do MongoDB."""
     return Decimal128(str(v))
 
 
@@ -28,10 +33,8 @@ Decimal_ = Annotated[Decimal, AfterValidator(convert_decimal_128)]
 
 
 class ProductUpdate(BaseSchemaMixin):
+    """Schema para a atualização de produtos."""
     quantity: Optional[int] = Field(None, description="Product quantity")
     price: Optional[Decimal_] = Field(None, description="Product price")
     status: Optional[bool] = Field(None, description="Product status")
-
-
-class ProductUpdateOut(ProductOut):
-    ...
+    updated_at: Optional[datetime] = Field(None, description="Product update date")
